@@ -1,4 +1,4 @@
-package de.plugsurfing.psmusic.web.dto;
+package de.plugsurfing.psmusic.artist;
 
 import lombok.Builder;
 import lombok.Getter;

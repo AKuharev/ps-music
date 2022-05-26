@@ -1,9 +1,12 @@
-package de.plugsurfing.psmusic.adapter.dto;
+package de.plugsurfing.psmusic.adapter.musicbrainz;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -11,14 +14,17 @@ import java.util.regex.Pattern;
  * @since 0.0.1
  */
 @Getter
+@JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
 public class MBArtist {
     private static final String WIKIDATA_TYPE = "wikidata";
 
+    private String id;
     private String name;
     private String gender;
     private String country;
     private String disambiguation;
     private List<Relation> relations;
+    private Set<ReleaseGroup> releaseGroups;
 
     public String getWikiResourceId() {
         return this.relations.stream()
@@ -48,5 +54,8 @@ public class MBArtist {
         private static final class Url {
             private String resource;
         }
+    }
+
+    public record ReleaseGroup(String id, String title) {
     }
 }
