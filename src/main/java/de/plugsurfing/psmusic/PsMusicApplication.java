@@ -9,5 +9,4 @@ public class PsMusicApplication {
     public static void main(String[] args) {
         SpringApplication.run(PsMusicApplication.class, args);
     }
-
 }
