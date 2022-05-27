@@ -1,5 +1,6 @@
 package de.plugsurfing.psmusic.adapter.coverartarchive;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * @since 0.0.1
  */
 @Getter
+@Builder
 public class CoverArtArchiveDTO {
     private List<ImageInfo> images;
 
@@ -21,7 +23,8 @@ public class CoverArtArchiveDTO {
     }
 
     @Getter
-    private static final class ImageInfo {
+    @Builder
+    public static final class ImageInfo {
         private String image;
         private Boolean front;
     }

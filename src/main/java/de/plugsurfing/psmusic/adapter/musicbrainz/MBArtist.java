@@ -2,6 +2,7 @@ package de.plugsurfing.psmusic.adapter.musicbrainz;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
  * @since 0.0.1
  */
 @Getter
+@Builder
 @JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
 public class MBArtist {
     private static final String WIKIDATA_TYPE = "wikidata";
@@ -46,12 +48,14 @@ public class MBArtist {
     }
 
     @Getter
-    private static final class Relation {
+    @Builder
+    public static final class Relation {
         private String type;
         private Url url;
 
         @Getter
-        private static final class Url {
+        @Builder
+        public static final class Url {
             private String resource;
         }
     }

@@ -1,5 +1,6 @@
 package de.plugsurfing.psmusic.adapter.wikidata;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Map;
  * @since 0.0.1
  */
 @Getter
+@Builder
 public class WikidataEntityData {
     private static final String EN_SITE = "enwiki";
 
@@ -22,11 +24,13 @@ public class WikidataEntityData {
     }
 
     @Getter
-    private static final class Entity {
+    @Builder
+    public static final class Entity {
         private Map<String, Sitelink> sitelinks;
 
         @Getter
-        private static final class Sitelink {
+        @Builder
+        public static final class Sitelink {
             private String title;
         }
     }
