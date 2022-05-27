@@ -35,7 +35,7 @@ public class MBArtist {
                 .map(Relation.Url::getResource)
                 .findAny()
                 .flatMap(this::parseResourceId)
-                .orElse("");
+                .orElseThrow(NoWikidataResourceIdException::new);
     }
 
     private Optional<String> parseResourceId(String url) {

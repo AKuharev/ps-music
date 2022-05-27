@@ -19,7 +19,7 @@ public class CoverArtArchiveDTO {
                 .filter(ImageInfo::getFront)
                 .map(ImageInfo::getImage)
                 .findAny()
-                .orElse("");
+                .orElseThrow(NoFrontAlbumImageException::new);
     }
 
     @Getter

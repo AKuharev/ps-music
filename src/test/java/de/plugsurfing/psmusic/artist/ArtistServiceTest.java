@@ -3,12 +3,14 @@ package de.plugsurfing.psmusic.artist;
 import de.plugsurfing.psmusic.adapter.coverartarchive.CoverArtArchiveAdapter;
 import de.plugsurfing.psmusic.adapter.coverartarchive.CoverArtArchiveDTO;
 import de.plugsurfing.psmusic.adapter.musicbrainz.MBArtist;
-import de.plugsurfing.psmusic.adapter.musicbrainz.MBArtistMapper;
+import de.plugsurfing.psmusic.adapter.musicbrainz.MBArtistMapperImpl;
 import de.plugsurfing.psmusic.adapter.musicbrainz.MusicBrainzAdapter;
+import de.plugsurfing.psmusic.adapter.musicbrainz.NoWikidataResourceIdException;
 import de.plugsurfing.psmusic.adapter.wikidata.WikidataAdapter;
 import de.plugsurfing.psmusic.adapter.wikidata.WikidataEntityData;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaAdapter;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaDTO;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,7 +40,7 @@ class ArtistServiceTest {
     private MusicBrainzAdapter musicBrainzAdapter;
 
     @Mock
-    private MBArtistMapper mbArtistMapper;
+    private MBArtistMapperImpl mbArtistMapper;
 
     @Mock
     private WikidataAdapter wikidataAdapter;
@@ -83,6 +85,29 @@ class ArtistServiceTest {
 
         StepVerifier.create(artistMono)
                 .expectNext(artist)
+                .verifyComplete();
+    }
+
+    @Test
+    void collectArtistData_whenNoWikidataResourceIdException() {
+        var albumId = "albumId";
+        var releaseGroup = new MBArtist.ReleaseGroup(albumId, "album");
+        var mbArtist = mock(MBArtist.class);
+        when(mbArtist.getWikiResourceId()).thenThrow(NoWikidataResourceIdException.class);
+        when(mbArtist.getReleaseGroups()).thenReturn(Set.of(releaseGroup));
+
+        var imageUrl = "imageUrl";
+        var coverArtArchiveDTO = mock(CoverArtArchiveDTO.class);
+        when(coverArtArchiveDTO.getFrontImageUrl()).thenReturn(imageUrl);
+
+        when(this.musicBrainzAdapter.getData(anyString())).thenReturn(just(mbArtist));
+        when(this.mbArtistMapper.to(eq(mbArtist), anyString(), anySet())).thenCallRealMethod();
+        when(this.coverArtArchiveAdapter.getData(albumId)).thenReturn(just(coverArtArchiveDTO));
+
+        var artistMono = this.artistService.collectArtistData(MBID);
+
+        StepVerifier.create(artistMono)
+                .assertNext(artist -> Assertions.assertEquals("no description", artist.getDescription()))
                 .verifyComplete();
     }
 }

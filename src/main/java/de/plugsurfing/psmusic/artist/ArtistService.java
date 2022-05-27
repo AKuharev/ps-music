@@ -9,6 +9,7 @@ import de.plugsurfing.psmusic.adapter.wikidata.WikidataAdapter;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaAdapter;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,6 +24,7 @@ import static reactor.core.publisher.Mono.zip;
  * @author Andrei Kukharau
  * @since 0.0.1
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArtistService {
@@ -37,14 +39,21 @@ public class ArtistService {
 
     public Mono<Artist> collectArtistData(String mbid) {
         return this.musicBrainzAdapter.getData(mbid)
-                .flatMap(it -> zip(this.getDescription(it.getWikiResourceId()), this.getAlbums(it.getReleaseGroups()),
+                .doOnError(throwable -> log.error(throwable.getMessage(), throwable))
+                .onErrorMap(throwable -> new ArtistNotFoundException(mbid, throwable))
+                .flatMap(it -> zip(this.getDescription(it), this.getAlbums(it.getReleaseGroups()),
                         (description, albums) -> this.mbArtistMapper.to(it, description, albums)));
     }
 
-    private Mono<String> getDescription(String wikiResourceId) {
-        return this.wikidataAdapter.getData(wikiResourceId)
-                .flatMap(it -> this.wikipediaAdapter.getData(it.getEnTitle(wikiResourceId)))
-                .map(WikipediaDTO::getExtractHtml);
+    private Mono<String> getDescription(MBArtist artist) {
+        return just(artist)
+                .map(MBArtist::getWikiResourceId)
+                .doOnError(throwable -> log.error(throwable.getMessage(), throwable))
+                .onErrorReturn("no description")
+                .flatMap(it -> this.wikidataAdapter.getData(it)
+                        .flatMap(wikidataEntityData -> this.wikipediaAdapter.getData(wikidataEntityData.getEnTitle(it)))
+                        .map(WikipediaDTO::getExtractHtml));
+
     }
 
     private Mono<Set<Artist.Album>> getAlbums(Set<MBArtist.ReleaseGroup> releaseGroups) {
