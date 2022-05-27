@@ -14,12 +14,16 @@ import java.util.List;
 public class CoverArtArchiveDTO {
     private List<ImageInfo> images;
 
+    public static CoverArtArchiveDTO empty() {
+        return CoverArtArchiveDTO.builder().images(List.of()).build();
+    }
+
     public String getFrontImageUrl() {
         return this.images.stream()
                 .filter(ImageInfo::getFront)
                 .map(ImageInfo::getImage)
                 .findAny()
-                .orElseThrow(NoFrontAlbumImageException::new);
+                .orElse("");
     }
 
     @Getter

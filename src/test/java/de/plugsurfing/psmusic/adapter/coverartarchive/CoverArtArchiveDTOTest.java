@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Andrei Kukharau
@@ -26,17 +25,5 @@ class CoverArtArchiveDTOTest {
         var actual = coverArtArchiveDTO.getFrontImageUrl();
 
         assertEquals(IMAGE_URL, actual);
-    }
-
-    @Test
-    void getNoFrontAlbumImageException() {
-        var coverArtArchiveDTO = CoverArtArchiveDTO.builder()
-                .images(List.of(CoverArtArchiveDTO.ImageInfo.builder()
-                        .front(false)
-                        .image(IMAGE_URL)
-                        .build()))
-                .build();
-
-        assertThrows(NoFrontAlbumImageException.class, coverArtArchiveDTO::getFrontImageUrl);
     }
 }

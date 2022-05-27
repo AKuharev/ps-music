@@ -59,8 +59,10 @@ public class ArtistService {
 
     private Mono<Set<Artist.Album>> getAlbums(Set<MBArtist.ReleaseGroup> releaseGroups) {
         return Flux.fromIterable(releaseGroups)
-                .delayElements(Duration.ofMillis(100))
-                .flatMap(it -> zip(just(it), this.coverArtArchiveAdapter.getData(it.id()), this::createAlbum))
+                .delayElements(Duration.ofMillis(200))
+                .flatMap(it -> zip(just(it), this.coverArtArchiveAdapter.getData(it.id())
+                        .doOnError(throwable -> log.error("Can't get image url", throwable))
+                        .onErrorReturn(CoverArtArchiveDTO.empty()), this::createAlbum))
                 .collect(Collectors.toSet());
     }
 
