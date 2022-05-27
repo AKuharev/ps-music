@@ -12,7 +12,8 @@ public abstract class Adapter {
     protected final WebClient webClient;
 
     protected Adapter(WebClient.Builder webClientBuilder, String baseUrl) {
-        this.webClient = webClientBuilder.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
+        var httpClient = HttpClient.create().followRedirect(true);
+        this.webClient = webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl(baseUrl)
                 .build();
     }

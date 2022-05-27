@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,7 @@ public class ArtistService {
 
     private Mono<Set<Artist.Album>> getAlbums(Set<MBArtist.ReleaseGroup> releaseGroups) {
         return Flux.fromIterable(releaseGroups)
+                .delayElements(Duration.ofMillis(100))
                 .flatMap(it -> zip(just(it), this.coverArtArchiveAdapter.getData(it.id()), this::createAlbum))
                 .collect(Collectors.toSet());
     }
