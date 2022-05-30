@@ -10,7 +10,6 @@ import de.plugsurfing.psmusic.adapter.wikidata.WikidataAdapter;
 import de.plugsurfing.psmusic.adapter.wikidata.WikidataEntityData;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaAdapter;
 import de.plugsurfing.psmusic.adapter.wikipedia.WikipediaDTO;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -95,19 +94,12 @@ class ArtistServiceTest {
         var mbArtist = mock(MBArtist.class);
         when(mbArtist.getWikiResourceId()).thenThrow(NoWikidataResourceIdException.class);
         when(mbArtist.getReleaseGroups()).thenReturn(Set.of(releaseGroup));
-
-        var imageUrl = "imageUrl";
-        var coverArtArchiveDTO = mock(CoverArtArchiveDTO.class);
-        when(coverArtArchiveDTO.getFrontImageUrl()).thenReturn(imageUrl);
-
         when(this.musicBrainzAdapter.getData(anyString())).thenReturn(just(mbArtist));
-        when(this.mbArtistMapper.to(eq(mbArtist), anyString(), anySet())).thenCallRealMethod();
-        when(this.coverArtArchiveAdapter.getData(albumId)).thenReturn(just(coverArtArchiveDTO));
 
         var artistMono = this.artistService.collectArtistData(MBID);
 
         StepVerifier.create(artistMono)
-                .assertNext(artist -> Assertions.assertEquals("no description", artist.getDescription()))
-                .verifyComplete();
+                .expectError(NullPointerException.class)
+                .verify();
     }
 }
